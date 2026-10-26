@@ -1,0 +1,74 @@
+name: Video demos - CDP Mode (Ubuntu)
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+
+    env:
+      PY_COLORS: "1"
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        python-version: ["3.14"]
+
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        working-directory: cdp_mode
+    steps:
+    - uses: actions/checkout@v6
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v6
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      working-directory: .
+      run: |
+        python -m pip install --upgrade pip wheel setuptools
+        pip install -r requirements.txt
+        pip install --upgrade playwright
+    # Each demo is independent: one site changing its page won't stop the rest.
+    - name: Run python raw_cdp_gitlab.py
+      continue-on-error: true
+      run: python raw_cdp_gitlab.py
+    - name: Run python raw_planetmc.py
+      continue-on-error: true
+      run: python raw_planetmc.py
+    - name: Run python raw_cdp_yelp.py
+      continue-on-error: true
+      run: python raw_cdp_yelp.py
+    - name: Run python raw_mouser.py
+      continue-on-error: true
+      run: python raw_mouser.py
+    - name: Run python raw_muse.py
+      continue-on-error: true
+      run: python raw_muse.py
+    - name: Run python raw_cdp_immoscout.py
+      continue-on-error: true
+      run: python raw_cdp_immoscout.py
+    - name: Run python raw_petco.py
+      continue-on-error: true
+      run: python raw_petco.py
+    - name: Run python raw_ticketmaster.py
+      continue-on-error: true
+      run: python raw_ticketmaster.py
+    - name: Run python raw_gas_records.py
+      continue-on-error: true
+      run: python raw_gas_records.py
+    - name: Run python raw_cdp_etsy.py
+      continue-on-error: true
+      run: python raw_cdp_etsy.py
+    - name: Run python playwright/raw_stealth_sync.py
+      continue-on-error: true
+      run: python playwright/raw_stealth_sync.py
+    - name: Upload scraped data and logs
+      if: always()
+      uses: actions/upload-artifact@v6
+      with:
+        name: video-demo-output
+        path: |
+          ./cdp_mode/downloaded_files/
+          ./cdp_mode/latest_logs/
+        if-no-files-found: ignore
